@@ -5,11 +5,11 @@ import {
   Provider,
   cacheExchange,
   fetchExchange,
-  gql,
   useMutation,
 } from "urql";
 import { useState } from "react";
 
+// const url = "http://localhost:3000/graphql";
 const url = "https://trygql.dev/graphql/uploads-mock";
 
 export default function App() {
@@ -38,16 +38,14 @@ const pickImage = async () => {
   return result.assets[0];
 };
 
-const UploadMutation = gql`
-  mutation UploadFile($file: Upload!) {
-    uploadFile(file: $file) {
-      filename
-    }
-  }
-`;
-
 function UploadImageWithUrql() {
-  const [_, upload] = useMutation(UploadMutation);
+  const [_, upload] = useMutation(`
+    mutation UploadFile($file: Upload!) {
+      uploadFile(file: $file) {
+        filename
+      }
+    }
+  `);
 
   return (
     <Button
@@ -65,9 +63,9 @@ function UploadImageWithUrql() {
         // which is needed to convert the request to multipart/form-data.
         file.__proto__ = File.prototype;
 
-        if (file instanceof File) {
-          console.error('file is NOT instance of File');
-          return
+        if (!(file instanceof File)) {
+          console.error("file is NOT instance of File");
+          return;
         }
 
         // ❌ THIS CRASHES
@@ -95,7 +93,13 @@ function UploadImageWithFetch() {
           formData.append(
             "operations",
             JSON.stringify({
-              query: UploadMutation,
+              query: `
+                mutation UploadFile($file: Upload!) {
+                  uploadFile(file: $file) {
+                    filename
+                  }
+                }
+              `,
               variables: { file: null },
             })
           );
