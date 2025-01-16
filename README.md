@@ -14,4 +14,4 @@ The app renders two buttons:
 
    This works as expected.
 
-<img src="screenshot.png" alt="" width="400"/>
+## Demo
